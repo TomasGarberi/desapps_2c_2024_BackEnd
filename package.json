@@ -1,0 +1,21 @@
+{
+  "name": "desapps_2c_2024_backend",
+  "version": "1.0.0",
+  "description": "Backend for the mobile application developed for the 'Desarrollo de Aplicaciones 2C - 2024' course. Includes API for user authentication, post creation, and social media interactions, built with Node.js and Express.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.0",
+    "pg": "^8.13.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3"
+  }
+}
