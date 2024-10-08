@@ -19,6 +19,12 @@
     "mongoose": "^8.7.0",
     "pg": "^8.13.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.3"
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.3",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "ts-node": "^10.9.2"
   }
 }
