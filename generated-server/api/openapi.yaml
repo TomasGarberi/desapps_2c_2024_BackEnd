@@ -1,0 +1,1407 @@
+openapi: 3.0.0
+info:
+  description: |
+    <h3><b>This is a REST API Swagger for the TPO of DAI Subject<b></h3><br>
+       <img width="250" align="left" src="https://i.imgur.com/T1kfbAM.png"/>
+    Teacher: Christian Mazzeo<br>
+    Students:<br> -Adriel Fierro <br> -Gonzalo Mandadrino <br> -Kevin Cahuana <br>-Tomas Garberi
+  title: Group 13 - DAI REST API Swagger - Lattice APP
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/ADRIFIERRO/TP-DAI-Swagger/1.0.0
+  variables:
+    basePath:
+      default: v2
+      enum:
+      - v1
+      - v2
+paths:
+  /health:
+    get:
+      description: API health status
+      operationId: healthID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: search results matching criteria
+      summary: API health status
+      tags:
+      - Health
+      x-eov-operation-handler: controllers/HealthController
+  /sessions/login:
+    post:
+      description: |
+        login a user with email & password
+      operationId: loginID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: User logged in
+        "400":
+          description: User not found
+        "401":
+          description: Invalid credentials
+      summary: Login
+      tags:
+      - Sessions
+      x-eov-operation-handler: controllers/SessionsController
+  /sessions/register:
+    post:
+      description: Create a user with email & password
+      operationId: registerID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreation'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreation'
+          description: user created
+        "500":
+          description: There was an error in the data of the user
+      summary: Register
+      tags:
+      - Sessions
+      x-eov-operation-handler: controllers/SessionsController
+  /sessions/refresh:
+    put:
+      description: |
+        refresh token
+      operationId: refreshTokenID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Session'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: refresh token
+      tags:
+      - Sessions
+      x-eov-operation-handler: controllers/SessionsController
+  /sessions/logout:
+    post:
+      description: |
+        Logout
+      operationId: logoutID
+      responses:
+        "200":
+          description: logged out
+        "400":
+          description: You are not logged
+      summary: Logout
+      tags:
+      - Sessions
+      x-eov-operation-handler: controllers/SessionsController
+  /sessions/password/reset:
+    put:
+      description: |
+        Reset password
+      operationId: resetPasswordID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usermail'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: search results matching criteria
+        "400":
+          description: Email not found
+      summary: reset password
+      tags:
+      - Sessions
+      x-eov-operation-handler: controllers/SessionsController
+  /otp/validate:
+    post:
+      description: |
+        validate One Time Password to validate login
+      operationId: postvalidateOTPId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TOPT'
+        required: true
+      responses:
+        "200":
+          description: code approved
+        "400":
+          description: Email not found
+      summary: validate a OTP
+      tags:
+      - Otp
+      x-eov-operation-handler: controllers/OtpController
+  /otp/send:
+    post:
+      description: |
+        Send a mail to your email for the OTP
+      operationId: getvalidateOTPId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usermail'
+        required: true
+      responses:
+        "200":
+          description: code approved
+        "400":
+          description: Email not found
+      summary: Send a mail to your email for the OTP
+      tags:
+      - Otp
+      x-eov-operation-handler: controllers/OtpController
+  /users:
+    description: Users CRUD
+    get:
+      description: |
+        You can use search by name, use pagination and orderby
+      operationId: getAllUsersID
+      parameters:
+      - description: pass a search string for looking up users
+        explode: true
+        in: query
+        name: contains
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: number of records to skip for pagination
+        explode: true
+        in: query
+        name: skip
+        required: true
+        schema:
+          format: int32
+          minimum: 0
+          type: integer
+        style: form
+      - description: maximum number of records to return
+        explode: true
+        in: query
+        name: limit
+        required: true
+        schema:
+          format: int32
+          maximum: 50
+          minimum: 0
+          type: integer
+        style: form
+      - description: pass an search string to order the result
+        explode: true
+        in: query
+        name: orderby
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: bad input parameter
+      summary: Search for a user or users
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}:
+    delete:
+      description: Delete my user
+      operationId: deleteUserID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "201":
+          description: user deleted
+        "400":
+          description: UserId not found
+        "500":
+          description: You are not the owner of the id
+      summary: delete my user
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+    get:
+      description: |
+        retrieve a specific user by id
+      operationId: getSpecificUserID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: user id not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific user by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+    put:
+      description: Update my user
+      operationId: updateUserID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Inventory item to add
+      responses:
+        "201":
+          description: user updated
+        "400":
+          description: "invalid input, object invalid"
+        "409":
+          description: an existing item already exists
+      summary: update my user
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/comments:
+    get:
+      description: |
+        retrieve a specific user comments
+      operationId: getSpecificUserComments
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific users quantity of comments made
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/posts:
+    get:
+      description: |
+        retrieve a specific user posts by id
+      operationId: getSpecificUserPostsID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific users posts by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/posts/favorites:
+    get:
+      description: |
+        retrieve a specific user posts favorites
+      operationId: getSpecificUserPostsFavorites
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific users posts by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/followers:
+    get:
+      description: |
+        retrieve a specific user followers by id
+      operationId: getSpecificUserFollowersID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific user followers by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/following:
+    get:
+      description: |
+        retrieve a specific user following users by id
+      operationId: getSpecificUserfollowingID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific user following users by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/follow:
+    post:
+      description: |
+        follow specific user by id
+      operationId: followSpecificUserID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: follow a specific user by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /users/{userId}/unfollow:
+    delete:
+      description: |
+        unfollow a specific user by id
+      operationId: unfollowSpecificUserID
+      parameters:
+      - description: pass an id to retrieve a specific user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: User not found
+        "401":
+          description: You are not logged
+      summary: unfollows a specific user by id
+      tags:
+      - Users
+      x-eov-operation-handler: controllers/UsersController
+  /posts/{postId}:
+    delete:
+      description: deletes specific post by id
+      operationId: deleteSpecificPostID
+      parameters:
+      - description: pass an id to delete a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          description: Numeric userID of the post to delete
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: deletes specific post by id
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+    get:
+      description: |
+        retrieve a specific post by id
+      operationId: getSpecificPostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific post by id
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /posts/{postId}/{imageId}:
+    get:
+      description: |
+        retrieve a specific post by id
+      operationId: getSpecificImageID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric postId of the post to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      - description: pass an id to retrieve a specific image of a post
+        explode: false
+        in: path
+        name: imageId
+        required: true
+        schema:
+          default: 2
+          description: Numeric imageId of the image to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: retrieve a specific image by id of a specific post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /posts:
+    post:
+      description: |
+        posts a post
+      operationId: postPostID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostPost'
+        description: here goes post information
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+        "500":
+          description: the post was not created properly
+      summary: posts a  post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /timeline:
+    get:
+      description: |
+        Recupera la timeline. La respuesta es un único elemento, un vector de enteros.
+      operationId: getTimelineID
+      parameters:
+      - description: ID del usuario que solicita la timeline
+        explode: true
+        in: query
+        name: idUsuario
+        required: true
+        schema:
+          example: 123
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Devuelve un vector de enteros que representan los IDs de los
+            posts
+        "401":
+          description: No estás autenticado
+      summary: retrieves timeline
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /get/{postId}/likes:
+    get:
+      description: |
+        retrieves likes from post
+      operationId: getLikesPostID
+      parameters:
+      - description: pass an id to retrieve a specific post likes
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: retrieves likes from post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /posts/{postId}/likes:
+    post:
+      description: |
+        adds like from a user to a post. Posts userID to add to post.
+      operationId: postLikePostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: integer
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: adds like from a user to a post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /posts/{postId}/favorite:
+    delete:
+      description: |
+        'removes from favorites a post'
+      operationId: deleteFavoritePostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: removes from favorites a post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+    get:
+      description: |
+        adds to favorite a post
+      operationId: getFavoritePostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: adds to favorite a post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+    post:
+      description: |
+        adds to favorite a post
+      operationId: postFavoritePostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: adds to favorite a post
+      tags:
+      - Posts
+      x-eov-operation-handler: controllers/PostsController
+  /comments/{postId}:
+    get:
+      description: |
+        retrieve all the comments of a post
+      operationId: getCommentsPostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Comment'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+        "402":
+          description: comment not found
+      summary: retrieve all the comments of a post
+      tags:
+      - Comments
+      x-eov-operation-handler: controllers/CommentsController
+    post:
+      description: |
+        post a comment on a post
+      operationId: postCommentsPostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Comment'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: Post not found
+        "401":
+          description: You are not logged
+      summary: post a comment on a post
+      tags:
+      - Comments
+      x-eov-operation-handler: controllers/CommentsController
+  /comments/{postId}/{commentId}:
+    delete:
+      description: |
+        retrieve all the comments of a post
+      operationId: deleteCommentsPostID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: postId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      - description: pass an id to delete a specific comment of the post
+        explode: false
+        in: path
+        name: commentId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "400":
+          description: comment or post not found
+        "401":
+          description: You are not logged
+      summary: delete the comment of a post
+      tags:
+      - Comments
+      x-eov-operation-handler: controllers/CommentsController
+  /ads:
+    get:
+      description: |
+        retrieve an ad
+      operationId: getAdsID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Ad'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: retrieve an ad
+      tags:
+      - Ads
+      x-eov-operation-handler: controllers/AdsController
+  /ads/url/{adId}:
+    get:
+      description: |
+        retrieve an ads url
+      operationId: getAdsUrlID
+      parameters:
+      - description: pass an id to retrieve a specific ad
+        explode: false
+        in: path
+        name: adId
+        required: true
+        schema:
+          default: 2
+          description: Numeric adId of the ad to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/adsUrl'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: retrieve an ads url
+      tags:
+      - Ads
+      x-eov-operation-handler: controllers/AdsController
+  /ads/{adId}/share:
+    post:
+      description: |
+        retrieve all the comments of a post
+      operationId: shareAdsID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: adId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: share an ad
+      tags:
+      - Ads
+      x-eov-operation-handler: controllers/AdsController
+  /ads/{adId}/visit:
+    get:
+      description: |
+        get the url of an ad
+      operationId: visitAdsID
+      parameters:
+      - description: pass an id to retrieve a specific post
+        explode: false
+        in: path
+        name: adId
+        required: true
+        schema:
+          default: 2
+          description: Numeric userID of the user to get
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Post'
+                type: array
+          description: search results matching criteria
+        "401":
+          description: You are not logged
+      summary: visit an ad
+      tags:
+      - Ads
+      x-eov-operation-handler: controllers/AdsController
+components:
+  schemas:
+    User:
+      example:
+        lastName: Doe
+        password: pass1234
+        name: John
+        description: hello this is john doe descriptions
+        id: 1
+        urlImage: https://i.imgur.com/T1kfbAM.png
+      properties:
+        id:
+          example: 1
+          format: uuid
+          type: integer
+        description:
+          example: hello this is john doe descriptions
+          type: string
+        name:
+          example: John
+          type: string
+        lastName:
+          example: Doe
+          type: string
+        password:
+          example: pass1234
+          type: string
+        urlImage:
+          example: https://i.imgur.com/T1kfbAM.png
+          type: string
+      required:
+      - description
+      - email
+      - id
+      - name
+      - password
+      - urlImage
+      - userName
+      type: object
+    UserCreation:
+      example:
+        password: pass1234
+        name: John
+        userName: johnTheUsername
+        email: John.doe@test.com.ar
+      properties:
+        name:
+          example: John
+          type: string
+        userName:
+          example: johnTheUsername
+          type: string
+        email:
+          example: John.doe@test.com.ar
+          type: string
+        password:
+          example: pass1234
+          type: string
+      required:
+      - email
+      - name
+      - password
+      - userName
+      type: object
+    UserLogin:
+      example:
+        password: pass1234
+        email: John.doe@test.com.ar
+      properties:
+        email:
+          example: John.doe@test.com.ar
+          type: string
+        password:
+          example: pass1234
+          type: string
+      required:
+      - email
+      - password
+      type: object
+    Usermail:
+      example:
+        password: pass1234
+        email: John.doe@test.com.ar
+      properties:
+        email:
+          example: John.doe@test.com.ar
+          type: string
+        password:
+          example: pass1234
+          type: string
+      required:
+      - email
+      - password
+      type: object
+    adsUrl:
+      example:
+        url: www.mercadolibre.com
+      properties:
+        url:
+          example: www.mercadolibre.com
+          type: string
+      required:
+      - url
+      type: object
+    Session:
+      example:
+        accessToken: afsdfasdfasfd.234234234.asdfasdfasdfasfd
+        refreshToken: afsdfasdfasfd.234234234.asdfasdfasdfasfd
+      properties:
+        accessToken:
+          example: afsdfasdfasfd.234234234.asdfasdfasdfasfd
+          type: string
+        refreshToken:
+          example: afsdfasdfasfd.234234234.asdfasdfasdfasfd
+          type: string
+      required:
+      - accessToken
+      - refreshToken
+      type: object
+    Comment:
+      example:
+        commentId: 1
+        comment: this is a test comment
+        postId: 1
+        userId: 1
+      properties:
+        commentId:
+          example: 1
+          type: integer
+        postId:
+          example: 1
+          type: integer
+        userId:
+          example: 1
+          type: integer
+        comment:
+          example: this is a test comment
+          type: string
+      required:
+      - comment
+      - commentId
+      - postId
+      - userId
+      type: object
+    Health:
+      example:
+        running: true
+      properties:
+        running:
+          example: true
+          type: boolean
+      required:
+      - running
+      type: object
+    TOPT:
+      example:
+        code: 1234
+        email: John.doe@test.com.ar
+      properties:
+        email:
+          example: John.doe@test.com.ar
+          type: string
+        code:
+          example: 1234
+          type: integer
+      required:
+      - code
+      - email
+      type: object
+    Ad:
+      example:
+        image: https://i.imgur.com/T1kfbAM.png
+        aId: 1
+        url: https://i.imgur.com/T1kfbAM.png
+      properties:
+        aId:
+          example: 1
+          type: integer
+        image:
+          example: https://i.imgur.com/T1kfbAM.png
+          type: string
+        url:
+          example: https://i.imgur.com/T1kfbAM.png
+          type: string
+      required:
+      - adId
+      - image
+      - url
+      type: object
+    Post:
+      example:
+        image: https://i.imgur.com/T1kfbAM.png
+        description: mi logo
+        postId: 1
+        userId: 1
+      properties:
+        description:
+          example: mi logo
+          type: string
+        image:
+          example: https://i.imgur.com/T1kfbAM.png
+          type: string
+        postId:
+          example: 1
+          type: integer
+        userId:
+          example: 1
+          type: integer
+      required:
+      - description
+      - image
+      - postId
+      - userId
+      type: object
+    PostPost:
+      example:
+        image: https://i.imgur.com/T1kfbAM.png
+        description: mi logo
+        location: 0
+        postId: 1
+        userId: 1
+      properties:
+        description:
+          example: mi logo
+          type: string
+        image:
+          example: https://i.imgur.com/T1kfbAM.png
+          type: string
+        postId:
+          example: 1
+          type: integer
+        userId:
+          example: 1
+          type: integer
+        location:
+          type: integer
+      required:
+      - description
+      - image
+      - location
+      - userId
+      type: object
+    inline_response_200:
+      example:
+        posts:
+        - 0
+        - 0
+      properties:
+        posts:
+          description: Vector de IDs de posts
+          items:
+            type: integer
+          type: array
+      type: object
