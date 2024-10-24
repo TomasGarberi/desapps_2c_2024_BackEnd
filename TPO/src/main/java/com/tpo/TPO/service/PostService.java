@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.tpo.TPO.entity.Post;
 import com.tpo.TPO.repository.PostRepository;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +30,16 @@ public class PostService {
     public void deletePost(Integer postId) {
         postRepository.deleteById(postId);
     }
+
+    // Método para obtener todos los posts de un usuario específico
+    public List<Post> getPostsByUser(Integer userId) {
+        return postRepository.getPostsByUser(userId);
+    }
+    
+    // Método para obtener el timeline de un usuario
+    public List<Post> getTimeline(Integer userId) {
+        return postRepository.getTimeline(userId);
+    }
+
+
 }

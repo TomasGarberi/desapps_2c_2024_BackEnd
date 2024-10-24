@@ -9,6 +9,7 @@ import com.tpo.TPO.entity.User;
 import com.tpo.TPO.repository.UserRepository;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -23,6 +24,10 @@ public class UserService {
 
     public User getUserById(Integer userId) {
         return userRepository.findById(userId).orElse(null);
+    }
+    
+    public User createUser(User user) {
+        return userRepository.save(user);
     }
 
     public User updateUser(Integer userId, User user) {
@@ -39,5 +44,13 @@ public class UserService {
         return userRepository.countCommentsByUserId(userId);
     }
 
-    // Otros métodos para manejar posts, followers, etc. se pueden agregar aquí
+    // Método para obtener los seguidores de un usuario
+    public Set<User> getFollowers(Integer userId) {
+        return userRepository.getFollowers(userId);
+    }
+
+    // Método para obtener los usuarios seguidos por un usuario
+    public Set<User> getFollowed(Integer userId) {
+        return userRepository.getFollowed(userId);
+    }
 }

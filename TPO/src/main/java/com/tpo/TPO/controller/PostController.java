@@ -41,4 +41,25 @@ public class PostController {
         List<Post> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
+
+    // Método para obtener el timeline de un usuario
+    @GetMapping("/timeline/{userId}")
+    public ResponseEntity<List<Post>> getTimeline(@PathVariable Integer userId) {
+        List<Post> timelinePosts = postService.getTimeline(userId);
+        if (timelinePosts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(timelinePosts);
+    }
+
+    // Método para obtener posts de un usuario específico
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Post>> getPostsByUser(@PathVariable Integer userId) {
+        List<Post> posts = postService.getPostsByUser(userId);
+        if (posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(posts);
+    }
+
 }
