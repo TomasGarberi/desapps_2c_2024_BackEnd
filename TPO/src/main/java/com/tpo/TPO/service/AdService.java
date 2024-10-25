@@ -1,6 +1,6 @@
 package com.tpo.TPO.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tpo.TPO.entity.Ad;
 import com.tpo.TPO.repository.AdRepository;
@@ -13,7 +13,6 @@ public class AdService {
 
     private final AdRepository adRepository;
 
-    @Autowired
     public AdService(AdRepository adRepository) {
         this.adRepository = adRepository;
     }
