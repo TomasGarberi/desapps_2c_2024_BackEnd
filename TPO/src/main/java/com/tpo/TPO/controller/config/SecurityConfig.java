@@ -35,7 +35,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**").permitAll()
+                .authorizeHttpRequests(req -> req.requestMatchers("/dai/**").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/usuarios/{id}/libros").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
