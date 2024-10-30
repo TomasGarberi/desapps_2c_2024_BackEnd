@@ -24,7 +24,7 @@ import com.tpo.TPO.controller.config.JwtService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/dai")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -75,8 +75,8 @@ public class AuthenticationController {
                 .build();
 
     }
-
-    @PostMapping("/refreshToken")
+/*
+ *  @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
                 .map(refreshTokenService::verifyExpiration)
@@ -89,4 +89,6 @@ public class AuthenticationController {
                 }).orElseThrow(() -> new RuntimeException("Token not in DB"));
 
     }
+ */
+
 }

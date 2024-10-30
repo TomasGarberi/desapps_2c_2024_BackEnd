@@ -1,5 +1,6 @@
 package com.tpo.TPO.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -27,5 +28,8 @@ public class Post {
 
     @Column(nullable = false)
     private List<Integer> usersLikes;
-    // Puedes agregar más relaciones si es necesario
+    
+    @Column(nullable = false)
+    private LocalDateTime fecha;
+
 }

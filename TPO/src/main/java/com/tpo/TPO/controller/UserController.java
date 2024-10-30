@@ -79,4 +79,19 @@ public class UserController {
         }
         return ResponseEntity.ok(followed);
     }
+
+    @PostMapping("/{userId}/follow/{followUserId}")
+    public ResponseEntity<User> followUser(
+            @PathVariable Integer userId,
+            @PathVariable Integer followUserId) {
+        try {
+            User followedUser = userService.followUser(userId, followUserId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(followedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // Usuario ya seguido
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Usuario no encontrado
+        }
+    }
+
 }

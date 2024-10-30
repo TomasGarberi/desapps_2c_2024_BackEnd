@@ -16,6 +16,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> getPostsByUser(@Param("userId") Integer userId);
     
     // Método para obtener todos los posts de los usuarios seguidos por un usuario
-    @Query("SELECT p FROM Post p WHERE p.userId IN (SELECT followed.id FROM User user JOIN user.followed followed WHERE user.id = :userId)")
+    @Query("SELECT p FROM Post p WHERE p.userId IN (SELECT followed.id FROM User user JOIN user.followed followed WHERE user.id = :userId) ORDER BY fecha desc")
     List<Post> getTimeline(@Param("userId") Integer userId);
 }

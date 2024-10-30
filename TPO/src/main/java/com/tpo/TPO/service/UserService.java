@@ -5,10 +5,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tpo.TPO.entity.User;
 import com.tpo.TPO.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -53,4 +56,27 @@ public class UserService {
     public Set<User> getFollowed(Integer userId) {
         return userRepository.getFollowed(userId);
     }
+    
+    @Transactional
+    public User followUser(Integer userId, Integer followUserId) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    User userToFollow = userRepository.findById(followUserId)
+            .orElseThrow(() -> new RuntimeException("User to follow not found"));
+
+    if (user.getFollowed().contains(userToFollow)) {
+        throw new IllegalArgumentException("User is already followed");
+    }
+
+    user.getFollowed().add(userToFollow);
+    userToFollow.getFollowers().add(user);
+
+    userRepository.save(user);
+    userRepository.save(userToFollow);
+
+    return userToFollow; // Devuelve el usuario seguido
+}
+
+    
 }
