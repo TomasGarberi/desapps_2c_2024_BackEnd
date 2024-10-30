@@ -44,6 +44,16 @@ public class AdController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/message")
+    public String getMessage() {
+        return "good work!";
+    }
+
+    @PostMapping("/message")
+    public String getMessagepost() {
+        return "good work!";
+    }
+
     /**
      * Creates a new ad.
      *

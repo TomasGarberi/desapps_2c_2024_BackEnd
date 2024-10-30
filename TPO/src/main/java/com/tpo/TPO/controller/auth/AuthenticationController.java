@@ -12,9 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.tpo.TPO.controller.dto.JwtResponse;
+import com.tpo.TPO.controller.dto.RefreshTokenRequest;
+import com.tpo.TPO.entity.RefreshToken;
 import com.tpo.TPO.repository.UserRepository;
 import com.tpo.TPO.service.AuthenticationService;
+import com.tpo.TPO.service.RefreshTokenService;
 import com.tpo.TPO.service.UserService;
+import com.tpo.TPO.controller.config.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +34,13 @@ public class AuthenticationController {
     private UserService userService;
 
     @Autowired
+    private RefreshTokenService refreshTokenService;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JwtService jwtservice;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -54,8 +65,28 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
+    public JwtResponse authenticate(
             @RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(service.authenticate(request));
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
+        return JwtResponse.builder()
+                .accessToken(service.authenticate(request))
+                .token(refreshToken.getToken())
+                .build();
+
+    }
+
+    @PostMapping("/refreshToken")
+    public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return refreshTokenService.findByToken(refreshTokenRequest.getToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(User -> {
+                    String accessToken = jwtservice.generateToken(User, User.getId());
+                    return JwtResponse.builder().accessToken(accessToken).token(refreshTokenRequest.getToken())
+                            .build();
+
+                }).orElseThrow(() -> new RuntimeException("Token not in DB"));
+
     }
 }

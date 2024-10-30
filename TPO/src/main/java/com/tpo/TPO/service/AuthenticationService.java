@@ -44,7 +44,7 @@ public class AuthenticationService {
                                 .build();
         }
 
-        public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        public String authenticate(AuthenticationRequest request) {
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 request.getUsername(),
@@ -54,8 +54,6 @@ public class AuthenticationService {
 
                                 .orElseThrow();
                 var jwtToken = jwtService.generateToken(usuario, usuario.getId());
-                return AuthenticationResponse.builder()
-                                .accessToken(jwtToken)
-                                .build();
+                return jwtToken;
         }
 }
