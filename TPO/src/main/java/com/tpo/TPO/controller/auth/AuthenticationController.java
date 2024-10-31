@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import com.tpo.TPO.controller.dto.JwtResponse;
 import com.tpo.TPO.controller.dto.RefreshTokenRequest;
-import com.tpo.TPO.entity.RefreshToken;
 import com.tpo.TPO.repository.UserRepository;
 import com.tpo.TPO.repository.RefreshTokenRepository;
 import com.tpo.TPO.service.AuthenticationService;
@@ -73,33 +73,37 @@ public class AuthenticationController {
         }
 
     }
-
     @PostMapping("/authenticate")
-    public JwtResponse authenticate(
-            @RequestBody AuthenticationRequest request) {
+    public JwtResponse authenticate(@RequestBody AuthenticationRequest request) {
         String usernameString = request.getUsername();
+        
+        // Buscar el usuario en la base de datos
         Optional<User> user = userRepository.findByUsername(usernameString);
+        
+        // Verificar si el usuario existe
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+        
         User realuser = user.get();
         int iduser = realuser.getId();
         Optional<RefreshToken> refreshTokenSearched = RefreshTokenRepository.findByUser_id(iduser);
 
-        if (refreshTokenSearched == null) {
-
+        if (refreshTokenSearched.isPresent()) {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
-
             return JwtResponse.builder()
                     .accessToken(service.authenticate(request))
                     .token(refreshToken.getToken())
                     .build();
-
         }
+        
         RefreshToken rt = refreshTokenSearched.get();
         return JwtResponse.builder()
                 .accessToken(service.authenticate(request))
                 .token(rt.getToken())
                 .build();
-
     }
+
 
     @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
