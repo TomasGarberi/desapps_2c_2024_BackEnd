@@ -4,22 +4,29 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import com.tpo.TPO.controller.dto.JwtResponse;
 import com.tpo.TPO.controller.dto.RefreshTokenRequest;
 import com.tpo.TPO.entity.RefreshToken;
 import com.tpo.TPO.repository.UserRepository;
+import com.tpo.TPO.repository.RefreshTokenRepository;
 import com.tpo.TPO.service.AuthenticationService;
 import com.tpo.TPO.service.RefreshTokenService;
 import com.tpo.TPO.service.UserService;
 import com.tpo.TPO.controller.config.JwtService;
+import com.tpo.TPO.entity.*;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +45,9 @@ public class AuthenticationController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository RefreshTokenRepository;
 
     @Autowired
     private JwtService jwtservice;
@@ -67,16 +77,31 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public JwtResponse authenticate(
             @RequestBody AuthenticationRequest request) {
+        String usernameString = request.getUsername();
+        Optional<User> user = userRepository.findByUsername(usernameString);
+        User realuser = user.get();
+        int iduser = realuser.getId();
+        Optional<RefreshToken> refreshTokenSearched = RefreshTokenRepository.findByUser_id(iduser);
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
+        if (refreshTokenSearched == null) {
+
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
+
+            return JwtResponse.builder()
+                    .accessToken(service.authenticate(request))
+                    .token(refreshToken.getToken())
+                    .build();
+
+        }
+        RefreshToken rt = refreshTokenSearched.get();
         return JwtResponse.builder()
                 .accessToken(service.authenticate(request))
-                .token(refreshToken.getToken())
+                .token(rt.getToken())
                 .build();
 
     }
-/*
- *  @PostMapping("/refreshToken")
+
+    @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return refreshTokenService.findByToken(refreshTokenRequest.getToken())
                 .map(refreshTokenService::verifyExpiration)
@@ -89,6 +114,18 @@ public class AuthenticationController {
                 }).orElseThrow(() -> new RuntimeException("Token not in DB"));
 
     }
- */
+
+    // Only for testing
+    @PostMapping("/findToken")
+    public Optional<RefreshToken> findToken(@RequestBody AuthenticationRequest authenticationRequest) {
+
+        String usernameString = authenticationRequest.getUsername();
+        Optional<User> user = userRepository.findByUsername(usernameString);
+        User realuser = user.get();
+        int iduser = realuser.getId();
+
+        return RefreshTokenRepository.findByUser_id(iduser);
+
+    }
 
 }

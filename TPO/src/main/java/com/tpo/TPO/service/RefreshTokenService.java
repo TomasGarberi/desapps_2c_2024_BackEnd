@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tpo.TPO.entity.RefreshToken;
+
 import com.tpo.TPO.repository.RefreshTokenRepository;
 import com.tpo.TPO.repository.UserRepository;
 
+import java.util.Optional;
 import java.util.UUID;
+
 import java.time.Instant;
 
 @Service
@@ -20,6 +23,7 @@ public class RefreshTokenService {
     private UserRepository userRepository;
 
     public RefreshToken createRefreshToken(String username) {
+
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(userRepository.findByUsername(username).get())
                 .token(UUID.randomUUID().toString())
@@ -30,5 +34,22 @@ public class RefreshTokenService {
 
     }
 
+    public Optional<RefreshToken> findByToken(String token) {
+        return refreshTokenRepository.findByToken(token);
+    }
+
+    public Optional<RefreshToken> findByuserId(int userid) {
+        return refreshTokenRepository.findByUser_id(userid);
+    }
+
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
+            refreshTokenRepository.delete(token);
+            throw new RuntimeException(token.getToken() + "Token Expired, please sign in again");
+        }
+
+        return token;
+
+    }
 
 }
