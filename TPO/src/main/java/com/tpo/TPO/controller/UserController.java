@@ -6,63 +6,77 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.tpo.TPO.entity.User;
 import com.tpo.TPO.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User Controller", description = "User management operations") // Etiqueta general para el controlador
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get all users", description = "Retrieve all users with optional filters")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers(
-            @RequestParam String contains,
-            @RequestParam int skip,
-            @RequestParam int limit,
-            @RequestParam(required = false) String orderby) {
+            @Parameter(description = "Search users containing this string") @RequestParam String contains,
+            @Parameter(description = "Number of records to skip") @RequestParam int skip,
+            @Parameter(description = "Maximum number of records to return") @RequestParam int limit,
+            @Parameter(description = "Field to sort by", required = false) @RequestParam(required = false) String orderby) {
         List<User> users = userService.getAllUsers(contains, skip, limit, orderby);
         return ResponseEntity.ok(users);
     }
 
-    // Get User
+    @Operation(summary = "Get a user by ID", description = "Retrieve a single user by their ID")
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
+    public ResponseEntity<User> getUserById(
+            @Parameter(description = "ID of the user to retrieve") @PathVariable Integer userId) {
         User user = userService.getUserById(userId);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-    // Post User
+
+    @Operation(summary = "Create a new user", description = "Add a new user to the system")
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(
+            @Parameter(description = "User object to be created") @RequestBody User user) {
         User createdUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
-    // Update User
+
+    @Operation(summary = "Update an existing user", description = "Modify the details of an existing user by their ID")
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer userId, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(
+            @Parameter(description = "ID of the user to update") @PathVariable Integer userId,
+            @Parameter(description = "Updated user object") @RequestBody User user) {
         User updatedUser = userService.updateUser(userId, user);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
-    // Delete User
+    @Operation(summary = "Delete a user", description = "Remove a user by their ID")
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "ID of the user to delete") @PathVariable Integer userId) {
         userService.deleteUser(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    // Get Comments
+    @Operation(summary = "Get user's comments count", description = "Retrieve the total count of comments for a user")
     @GetMapping("/{userId}/comments")
-    public ResponseEntity<Integer> getUserComments(@PathVariable Integer userId) {
+    public ResponseEntity<Integer> getUserComments(
+            @Parameter(description = "ID of the user") @PathVariable Integer userId) {
         int commentsCount = userService.getUserCommentsCount(userId);
         return ResponseEntity.ok(commentsCount);
     }
 
-    // Get Followers
+    @Operation(summary = "Get user's followers", description = "Retrieve a list of users who follow the specified user")
     @GetMapping("/{userId}/followers")
-    public ResponseEntity<Set<User>> getFollowers(@PathVariable Integer userId) {
+    public ResponseEntity<Set<User>> getFollowers(
+            @Parameter(description = "ID of the user") @PathVariable Integer userId) {
         Set<User> followers = userService.getFollowers(userId);
         if (followers.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -70,9 +84,10 @@ public class UserController {
         return ResponseEntity.ok(followers);
     }
 
-    // Get Followed
+    @Operation(summary = "Get users followed by a user", description = "Retrieve a list of users followed by the specified user")
     @GetMapping("/{userId}/followed")
-    public ResponseEntity<Set<User>> getFollowed(@PathVariable Integer userId) {
+    public ResponseEntity<Set<User>> getFollowed(
+            @Parameter(description = "ID of the user") @PathVariable Integer userId) {
         Set<User> followed = userService.getFollowed(userId);
         if (followed.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -80,10 +95,11 @@ public class UserController {
         return ResponseEntity.ok(followed);
     }
 
+    @Operation(summary = "Follow another user", description = "Allows the specified user to follow another user by ID")
     @PostMapping("/{userId}/follow/{followUserId}")
     public ResponseEntity<User> followUser(
-            @PathVariable Integer userId,
-            @PathVariable Integer followUserId) {
+            @Parameter(description = "ID of the user initiating the follow") @PathVariable Integer userId,
+            @Parameter(description = "ID of the user to be followed") @PathVariable Integer followUserId) {
         try {
             User followedUser = userService.followUser(userId, followUserId);
             return ResponseEntity.status(HttpStatus.CREATED).body(followedUser);
@@ -93,5 +109,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Usuario no encontrado
         }
     }
-
 }
