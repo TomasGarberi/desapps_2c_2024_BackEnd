@@ -21,13 +21,6 @@ import com.tpo.TPO.service.UserService;
 import com.tpo.TPO.controller.config.JwtService;
 import com.tpo.TPO.entity.*;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -73,20 +66,21 @@ public class AuthenticationController {
         }
 
     }
+
     @PostMapping("/authenticate")
     public JwtResponse authenticate(@RequestBody AuthenticationRequest request) {
         String usernameString = request.getUsername();
-        
+
         System.out.println("Username recibido: " + request.getUsername());
         System.out.println("Password recibido: " + request.getPassword());
         // Buscar el usuario en la base de datos
         Optional<User> user = userRepository.findByUsername(usernameString);
-        
+
         // Verificar si el usuario existe
         if (user.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
         }
-        
+
         User realuser = user.get();
         int iduser = realuser.getId();
 
@@ -104,11 +98,10 @@ public class AuthenticationController {
         }
 
         return JwtResponse.builder()
-            .accessToken(service.authenticate(request))
-            .token(refreshToken.getToken()) // Usamos el refreshToken que existe o el nuevo
-            .build();
+                .accessToken(service.authenticate(request))
+                .token(refreshToken.getToken()) // Usamos el refreshToken que existe o el nuevo
+                .build();
     }
-
 
     @PostMapping("/refreshToken")
     public JwtResponse refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
