@@ -28,11 +28,14 @@ public class PasswordResetController {
     // Endpoint para verificar el TOTP
     @PostMapping("/verify-totp")
     public ResponseEntity<Map<String, Boolean>> verifyTotp(@RequestParam String email, @RequestParam String totpCode) {
+        // Agregar registro para depuración
+        System.out.println("Email: " + email + ", TOTP Code: " + totpCode);
+        
         boolean isValid = passwordResetService.verifyTOTP(email, totpCode);
         
         Map<String, Boolean> response = new HashMap<>();
-        response.put("success", isValid);
-        
-        return ResponseEntity.ok(response); // Respondemos con el resultado de la verificación
+        response.put("success", isValid);     
+        return ResponseEntity.ok(response);
     }
+    
 }

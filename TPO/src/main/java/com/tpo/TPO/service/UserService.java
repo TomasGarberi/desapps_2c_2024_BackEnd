@@ -59,24 +59,32 @@ public class UserService {
     
     @Transactional
     public User followUser(Integer userId, Integer followUserId) {
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    User userToFollow = userRepository.findById(followUserId)
-            .orElseThrow(() -> new RuntimeException("User to follow not found"));
+        User userToFollow = userRepository.findById(followUserId)
+                .orElseThrow(() -> new RuntimeException("User to follow not found"));
 
-    if (user.getFollowed().contains(userToFollow)) {
-        throw new IllegalArgumentException("User is already followed");
+        if (user.getFollowed().contains(userToFollow)) {
+            throw new IllegalArgumentException("User is already followed");
+        }
+
+        user.getFollowed().add(userToFollow);
+        userToFollow.getFollowers().add(user);
+
+        userRepository.save(user);
+        userRepository.save(userToFollow);
+
+        return userToFollow; // Devuelve el usuario seguido
     }
 
-    user.getFollowed().add(userToFollow);
-    userToFollow.getFollowers().add(user);
-
-    userRepository.save(user);
-    userRepository.save(userToFollow);
-
-    return userToFollow; // Devuelve el usuario seguido
-}
-
+    public boolean isEmailUsed(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+    
+    public boolean isUsernameUsed(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+    
     
 }

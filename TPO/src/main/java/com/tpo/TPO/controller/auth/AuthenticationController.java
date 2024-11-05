@@ -77,6 +77,8 @@ public class AuthenticationController {
     public JwtResponse authenticate(@RequestBody AuthenticationRequest request) {
         String usernameString = request.getUsername();
         
+        System.out.println("Username recibido: " + request.getUsername());
+        System.out.println("Password recibido: " + request.getPassword());
         // Buscar el usuario en la base de datos
         Optional<User> user = userRepository.findByUsername(usernameString);
         
@@ -87,21 +89,24 @@ public class AuthenticationController {
         
         User realuser = user.get();
         int iduser = realuser.getId();
+
+        System.out.println("Username REAL: " + realuser);
+        System.out.println("ID REAL: " + iduser);
+
         Optional<RefreshToken> refreshTokenSearched = RefreshTokenRepository.findByUser_id(iduser);
 
+        RefreshToken refreshToken;
         if (refreshTokenSearched.isPresent()) {
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
-            return JwtResponse.builder()
-                    .accessToken(service.authenticate(request))
-                    .token(refreshToken.getToken())
-                    .build();
+            refreshToken = refreshTokenSearched.get(); // Aquí accedes al valor de forma segura
+        } else {
+            // Si no existe el refresh token, creamos uno nuevo
+            refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
         }
-        
-        RefreshToken rt = refreshTokenSearched.get();
+
         return JwtResponse.builder()
-                .accessToken(service.authenticate(request))
-                .token(rt.getToken())
-                .build();
+            .accessToken(service.authenticate(request))
+            .token(refreshToken.getToken()) // Usamos el refreshToken que existe o el nuevo
+            .build();
     }
 
 

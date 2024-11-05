@@ -94,4 +94,19 @@ public class UserController {
         }
     }
 
+    // Get User by Email
+    @GetMapping("/isEmailUsed")
+    public ResponseEntity<Boolean> isEmailUsed(@RequestParam String email) {
+        boolean exists = userService.isEmailUsed(email);
+        return ResponseEntity.ok(exists);
+    }
+
+    // Get User by Username
+    @GetMapping("/isUsernameUsed")
+    public ResponseEntity<Boolean> isUsernameUsed(@RequestParam String username) {
+        boolean exists = userService.isUsernameUsed(username);
+        return ResponseEntity.ok(exists);
+    }
+
+
 }

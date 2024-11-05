@@ -17,12 +17,19 @@ public class PasswordResetService {
 
     // Generar un código TOTP de 4 dígitos para un usuario
     public String generateTOTP(String email) {
-        int code = gAuth.getTotpPassword("userSecretKey");  // Idealmente, deberías usar una clave única para cada usuario
-        String fourDigitCode = String.format("%04d", code % 10000);  // Reducir a 4 dígitos
-        resetTokens.put(email, fourDigitCode);  // Almacenar el código TOTP junto con el email del usuario
-        tokenTimestamps.put(email, System.currentTimeMillis()); // Almacenar el tiempo de generación
+        int code = gAuth.getTotpPassword("userSecretKey");
+        String fourDigitCode = String.format("%04d", code % 10000);
+        
+        // Log para verificar el código generado y almacenado
+        resetTokens.put(email, fourDigitCode);
+        tokenTimestamps.put(email, System.currentTimeMillis());
+    
+        System.out.println("Generated TOTP for " + email + ": " + fourDigitCode);
+        
         return fourDigitCode;
     }
+    
+    
 
     // Método para enviar el correo (aquí puedes configurar la lógica de envío)
     public void sendEmail(String to, String subject, String body) {
@@ -41,10 +48,19 @@ public class PasswordResetService {
     // Verificar si el código TOTP ingresado es correcto
     public boolean verifyTOTP(String email, String inputCode) {
         String storedCode = resetTokens.get(email);
-        long generatedTime = tokenTimestamps.get(email);
+        Long generatedTime = tokenTimestamps.get(email);
         long currentTime = System.currentTimeMillis();
+    
+        // Agregar logs para verificación
+        System.out.println("Stored Code: " + storedCode);
+        System.out.println("Input Code: " + inputCode);
+        System.out.println("Generated Time: " + generatedTime);
+        System.out.println("Current Time: " + currentTime);
         
         // Verificar si el código es correcto y si no ha expirado
-        return storedCode != null && storedCode.equals(inputCode) && (currentTime - generatedTime < 300000); // 5 minutos en milisegundos
+        return storedCode != null && storedCode.equals(inputCode.trim()) && 
+               (generatedTime != null && (currentTime - generatedTime < 300000)); // 5 minutos
     }
+    
+    
 }

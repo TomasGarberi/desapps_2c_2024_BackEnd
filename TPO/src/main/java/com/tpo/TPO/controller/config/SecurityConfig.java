@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req.requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/usuarios/{id}/libros").permitAll()
+                        .requestMatchers("/pass/**").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .requestMatchers("/usuarios/eliminar/**", "/usuarios/rol/**", "/categoria/borrar/**",
                                 "/categoria")
