@@ -1,17 +1,18 @@
 package com.tpo.TPO.controller;
 
+import com.tpo.TPO.controller.auth.AuthenticationRequest;
+import com.tpo.TPO.entity.User;
+import com.tpo.TPO.repository.UserRepository;
+import com.tpo.TPO.service.PasswordResetService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.tpo.TPO.controller.auth.AuthenticationRequest;
-import com.tpo.TPO.entity.User;
-import com.tpo.TPO.repository.UserRepository;
-import com.tpo.TPO.service.PasswordResetService;
-
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/pass")
+@Tag(name = "Password Reset Controller", description = "Endpoints relacionados con el restablecimiento de contraseñas de usuarios")
 @RequiredArgsConstructor
 public class PasswordResetController {
 
@@ -27,16 +29,18 @@ public class PasswordResetController {
     @Autowired
     private final PasswordResetService passwordResetService;
 
-    // Endpoint para solicitar un restablecimiento de contraseña
+    @Operation(summary = "Solicitar restablecimiento de contraseña", description = "Envía una solicitud de restablecimiento de contraseña al correo electrónico proporcionado.")
     @PostMapping("/request-reset")
-    public ResponseEntity<Void> requestPasswordReset(@RequestParam String email) {
+    public ResponseEntity<Void> requestPasswordReset(@Parameter(description = "Correo electrónico del usuario que solicita el restablecimiento") @RequestParam String email) {
         passwordResetService.requestPasswordReset(email);
         return ResponseEntity.ok().build(); // Respondemos con 200 OK
     }
 
-    // Endpoint para verificar el TOTP
+    @Operation(summary = "Verificar código TOTP", description = "Verifica si el código TOTP proporcionado es válido para el correo electrónico del usuario.")
     @PostMapping("/verify-totp")
-    public ResponseEntity<Map<String, Boolean>> verifyTotp(@RequestParam String email, @RequestParam String totpCode) {
+    public ResponseEntity<Map<String, Boolean>> verifyTotp(
+            @Parameter(description = "Correo electrónico del usuario que solicita la verificación") @RequestParam String email,
+            @Parameter(description = "Código TOTP proporcionado por el usuario") @RequestParam String totpCode) {
         // Agregar registro para depuración
         System.out.println("Email: " + email + ", TOTP Code: " + totpCode);
 
@@ -47,8 +51,9 @@ public class PasswordResetController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Cambiar contraseña", description = "Permite a un usuario cambiar su contraseña después de una verificación exitosa.")
     @PutMapping("/change-password")
-    public ResponseEntity<Boolean> changePassword(@RequestBody AuthenticationRequest changedUser) {
+    public ResponseEntity<Boolean> changePassword(@Parameter(description = "Datos del usuario y nueva contraseña") @RequestBody AuthenticationRequest changedUser) {
 
         String usernameString = changedUser.getUsername();
         String password = changedUser.getPassword();
@@ -69,10 +74,8 @@ public class PasswordResetController {
 
         if (updatedUser != null) {
             return ResponseEntity.ok(true);
-
         } else {
             return ResponseEntity.ok(false);
         }
-
     }
 }
