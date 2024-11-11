@@ -1,8 +1,16 @@
 package com.tpo.TPO.controller;
 
+<<<<<<< Updated upstream
+=======
+import com.tpo.TPO.service.AdApiService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+>>>>>>> Stashed changes
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+<<<<<<< Updated upstream
 
 import com.tpo.TPO.entity.Ad;
 import com.tpo.TPO.service.AdService;
@@ -12,21 +20,25 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+=======
+import org.springframework.web.client.RestClientException;
+>>>>>>> Stashed changes
 
 @RestController
 @RequestMapping("/ads")
 @Tag(name = "Ad Controller", description = "Controller for managing advertisements") // Descripción del controlador en Swagger
 public class AdController {
 
-    private final AdService adService;
+    private final AdApiService adApiService;
 
     @Autowired
-    public AdController(AdService adService) {
-        this.adService = adService;
+    public AdController(AdApiService adApiService) {
+        this.adApiService = adApiService;
     }
 
     @Operation(summary = "Get all ads", description = "Retrieves a list of all ads available")
     @GetMapping
+<<<<<<< Updated upstream
     public ResponseEntity<List<Ad>> getAllAds() {
         List<Ad> ads = adService.findAll();
         return ResponseEntity.ok(ads);
@@ -77,5 +89,14 @@ public class AdController {
             @Parameter(description = "ID of the ad to be deleted") @PathVariable("id") Integer id) {
         adService.deleteById(id);
         return ResponseEntity.noContent().build();
+=======
+    public ResponseEntity<Object> getAllAds() {
+        try {
+            ResponseEntity<Object> response = adApiService.getAdsFromExternalApi();
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (RestClientException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Error al obtener los anuncios externos: " + e.getMessage());
+        }
+>>>>>>> Stashed changes
     }
 }
